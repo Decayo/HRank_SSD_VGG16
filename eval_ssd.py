@@ -37,6 +37,10 @@ parser.add_argument(
     type=str,
     default="[0.45]*7+[0.78]*5+[0.8]*4",
     help='compress rate of each conv')
+parser.add_argument(
+    '--pruned_model',action = 'store_true'
+    ,
+    help='cause the pruned model saved in checkpoint has different structure')
 args = parser.parse_args()
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
 
@@ -175,16 +179,17 @@ if __name__ == '__main__':
         sys.exit(1)
 
     timer.start("Load Model")
-    # checkpoint = torch.load(args.trained_model)
-    # new_state_dict = OrderedDict()
-    # tmp_ckpt = checkpoint['state_dict']
+    if(args.pruned_model):
+        checkpoint = torch.load(args.trained_model)
+        new_state_dict = OrderedDict()
+        tmp_ckpt = checkpoint['state_dict']
 
-    # for k, v in tmp_ckpt.items():
-    #     new_state_dict[k.replace('module.', '')] = v
+        for k, v in tmp_ckpt.items():
+            new_state_dict[k.replace('module.', '')] = v
+        net.load_state_dict(new_state_dict)
+    else:
+        net.load(args.trained_model)
     logging.info(f"Resume from the model {args.trained_model}")
-    #net.load(args.resume)
-    # net.load_state_dict(new_state_dict)
-    net.load(args.trained_model)
     net = net.to(DEVICE)
     print(f'It took {timer.end("Load Model")} seconds to load the model.')
     if args.net == 'vgg16-ssd':
