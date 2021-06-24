@@ -167,6 +167,10 @@ tvmonitor: 0.6461898726506375
 
 Average Precision Across All Classes:0.6759018952221378
 ```
+#### Conclustion  
+#### 為何裁剪後變慢？  
+猜測是因為base net output channel接續classfication和regression model時 channel結構的差異過大導致，因最後一層壓縮50%(原先512->1024，壓縮後變成256->1024)可能導致速度變慢，這方面還需要後續實驗驗證。
+
 ### 2. FLOPs & Paras
 #### VGG-16
 ```
@@ -255,14 +259,21 @@ Flops: 14224900401.00
 Params: 4231976.00
 Flops: 755703808.00
 ```
+**注意這僅含有base net  
+根據[此網站表示](https://paperswithcode.com/paper/pelee-a-real-time-object-detection-system-on/review/)SSD+MobinetV1 in Table 8 & Table 10
+```
+Params: 6800000
+Flops: 11500000000
+```
+此數值較為合理，因結構問題在撰寫計算運算量上需要額外重新撰寫，故僅能做base net的估計，其他vgg-16和pruned-vgg16皆為SSD整體結構之參數量。
 
-
-3. demo預覽  
+### 3. demo預覽  
 ![](https://i.imgur.com/DveaYbM.jpg)
 ![](https://i.imgur.com/KvsymOh.jpg)
 ![](https://i.imgur.com/2sWvkW4.jpg)
 
 ## 參考資料
 https://github.com/qfgaohao/pytorch-ssd  
-https://github.com/lmbxmu/HRankPlus
+https://github.com/lmbxmu/HRankPlus  
+https://paperswithcode.com/paper/pelee-a-real-time-object-detection-system-on/review/  
 
